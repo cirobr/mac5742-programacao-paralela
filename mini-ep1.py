@@ -1,7 +1,7 @@
 # miniEP1
 # Ciro B Rosa, No USP 2320769
 # comando para execução do programa: xxx
-N = 26
+N = 24
 primos = 0
 primosEspeciais = 0
 crivo = [True for i in range(N+1)]
