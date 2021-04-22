@@ -1,7 +1,7 @@
 # miniEP1
 # Ciro B Rosa, No USP 2320769
-# comando para execução do programa: xxx
-N = 24
+# comando para execução do programa: time python3 mini-ep1.py
+N = 1 << 26
 primos = 0
 primosEspeciais = 0
 crivo = [True for i in range(N+1)]
@@ -13,4 +13,5 @@ for i in range(2, N+1):
             primosEspeciais += 1
         for j in range(i*2, N+1, i):
             crivo[j] = False
+
 print(primos, primosEspeciais)
