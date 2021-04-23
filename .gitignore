@@ -10,3 +10,4 @@
 #C
 /build*
 CMakeLists.txt.user
+CMakeLists.txt.*
