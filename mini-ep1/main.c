@@ -1,7 +1,7 @@
 /*
  * miniEP1
  * Ciro B Rosa, No USP 2320769
- * comando para execução do programa: xxx
+ * comando para execução do programa: cmake . | make | ./mini-ep1
 */
 
 #include <stdio.h>
