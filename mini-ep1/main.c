@@ -6,6 +6,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+//#include <stdbool.h>
 
 #define NN 26
 
@@ -19,8 +20,12 @@ int main(void)
 
     N = 1 << NN;
 
-    int *crivo; // int crivo[N+1];
-    crivo = malloc (N+1 * sizeof (int));
+    //int crivo[N+1];
+    int *crivo;
+        crivo = malloc(N * sizeof(int));
+
+    primos = 0;
+    primosEspeciais = 0;
 
     for (i=0; i <= N; i++)
     {
