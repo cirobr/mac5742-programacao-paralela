@@ -4,5 +4,4 @@ project(mini-ep2 LANGUAGES C)
 
 add_executable(mini-ep2 main.c)
 
-add_compile_options(-Wall -Wextra -pedantic -Werror)
-
+add_compile_options(-Wall -Wextra -pedantic -Werror -O3 -mtune=corei7)
