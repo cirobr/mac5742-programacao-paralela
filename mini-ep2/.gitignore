@@ -1,4 +1,6 @@
 #C
-cmake*
-CMake*
+/CMakeFiles
+cmake_*
+CMakeCache*
 *.cbp
+
