@@ -1,7 +1,7 @@
 /*
- * miniEP1
+ * miniEP2 - Versão Turbo
  * Ciro B Rosa, No USP 2320769
- * comando para execução do programa: cmake . | make | ./mini-ep1
+ * comando para execução do programa: cmake . | make | ./mini-ep2
 */
 
 #include <stdio.h>
@@ -13,28 +13,30 @@
 int main(void)
 {
     int
-            i, j,
-            N,
+            i, j, ii, ji,
+            N, Ni,
             primos,
             primosEspeciais;
 
     N = 1 << NN;
+    Ni = N / 2;
 
-    //int crivo[N+1];
+    //int crivo[Ni];
     int *crivo;
-        crivo = malloc(N * sizeof(int));
+        crivo = malloc(Ni * sizeof(int));
 
-    primos = 0;
-    primosEspeciais = 0;
+    primos = 1;
+    primosEspeciais = 1;
 
-    for (i=0; i <= N; i++)
+    for (i=0; i <= Ni; i++)
     {
         crivo[i] = 1;
     }
 
-    for (i=2; i <= N; i++)
+    for (i=3; i <= N; i=i+2)
     {
-        if (crivo[i] == 1)
+        ii = (i - 1) / 2;
+        if (crivo[ii] == 1)
         {
             primos += 1;
 
@@ -43,9 +45,9 @@ int main(void)
                     primosEspeciais += 1;
             }
 
-            for (j=i*2; j <= N; j = j+i)
+            for (ji=ii; ji <= Ni; ji = ji+i)
             {
-                    crivo[j] = 0;
+                    crivo[ji] = 0;
             }
         }
     }
