@@ -1,8 +1,6 @@
 # miniEP2 - Versão Turbo
 # Ciro B Rosa, No USP 2320769
 # comando para execução do programa: time python3 mini-ep2.py
-# ep1 original
-# vetor crivo de impares
 
 N = 1 << 26
 Ni = int(N / 2)                         # quantidade de numeros impares entre 0 e N
