@@ -13,7 +13,7 @@
 int main(void)
 {
     int
-            i, j, ii, ji,
+            i, ii, ji,
             N, Ni,
             primos,
             primosEspeciais;
