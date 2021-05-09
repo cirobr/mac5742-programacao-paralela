@@ -11,3 +11,4 @@
 /build*
 CMakeLists.txt.user
 CMakeLists.txt.*
+*.o
