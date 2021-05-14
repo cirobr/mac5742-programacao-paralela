@@ -5,10 +5,10 @@ const WIDTH = 3000;
 const HEIGHT = 3000;
 
 // Constantes do limite o plano cartesiano
-const Xi = -1.0;
+const Xi = -2.0;
 const Xj = +1.0;
-const Yi = -1.0;
-const Yj = +1.0;
+const Yi = -1.5;
+const Yj = +1.5;
 
 const Xd = Xj - Xi;
 const Yd = Yj - Yi;
@@ -39,7 +39,7 @@ const main = (data) => {
             let zy_novo = 2*zx*zy + y;
             zx = zx_novo;
             zy = zy_novo;
-            if ((zx*zx + zy*zx)>4) {
+            if ((zx*zx + zy*zy)>4) {
                 break;
             }
             steps = steps + 1;
