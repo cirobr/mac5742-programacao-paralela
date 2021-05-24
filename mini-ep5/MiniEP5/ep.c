@@ -16,6 +16,7 @@ char * NUSP = "0000000";
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <sys/wait.h>
 #include <pthread.h>
 #include <unistd.h>
 #include <string.h>
@@ -23,7 +24,7 @@ char * NUSP = "0000000";
 
 // Prototype
 
-int _init(int argc, char **argv);
+int _epinit(int argc, char **argv);
 int _run(void);
 typedef void *obj;
 
@@ -44,7 +45,7 @@ int advance(obj state, char cur, char next);
 int length(obj state);
 
 int main(int argc, char **argv) {
-	if(_init(argc, argv))
+	if(_epinit(argc, argv))
 		return _run();
 	return EXIT_FAILURE;
 }
@@ -103,7 +104,7 @@ struct {
 // It is not thread safe
 long _getTS();
 
-int _init(int argc, char **argv) {
+int _epinit(int argc, char **argv) {
 	if(argc >= 2 && strcmp(argv[1], "test") == 0)
 		_test_mode = 1;
 	return 1;
@@ -145,6 +146,9 @@ int _run(void) {
 			threads = t;
 			for(int e = 1; e <= 5; e++) {
 				t0 = _getTS();
+                
+                //thanks Guerrero
+                fflush(stdout);
 
 				// run in another processes for safety, attach to the correct pid for debbuging!
 				pid_t pid = fork();
