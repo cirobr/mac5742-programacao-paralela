@@ -13,4 +13,4 @@ $(OUTPUT): $(OUTPUT).c
 
 .PHONY: clean
 clean:
-	rm $(OUTPUT)
+	rm $(OUTPUT).o
