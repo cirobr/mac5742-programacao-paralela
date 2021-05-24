@@ -1,8 +1,8 @@
 /* Mini EP 5
  */
 
-char * NAME = "YOUR NAME GOES HERE";
-char * NUSP = "0000000";
+char * NAME = "Ciro B Rosa";
+char * NUSP = "2320769";
 
 /* 
  * To test the code, invoke it with the test argument
