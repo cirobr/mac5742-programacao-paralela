@@ -59,26 +59,59 @@ int main(int argc, char **argv) {
 // Verfique essa variavel para obter o número de threads a criar
 unsigned short int threads;
 
-void *thread_advance(void *threadid, int ct, obj state, char cur, char next){
-	long tid;
-	tid = (long)threadid;
+struct args {
+	int cnt;
+	obj state;
+	char cur;
+	char next;
+};
 
+void *thread_advance(struct args advance_args){
 	// core to be executed in parallel
-	if(advance(state, cur, next)){
-		ct++;
-	}
 	
-	pthread_exit(ct);
+	int cnt   = advance_args.cnt;
+	obj state = advance_args.state;
+	char cur  = advance_args.cur;
+	char next = advance_args.next;
+	
+	if(advance(state, cur, next)){
+		cnt++;
+	}
+	// core ends here
+	
+	pthread_exit(cnt);
 }
 
 // Sequential base implementation, change it to use pthreads
 // Implementação sequencial base, altere ela para ter usar pthreads
 int task(char * data, long len, char * search) {
+    pthread_t th[threads];
+    int error_code;
+    long t;
+
 	obj st = createState(search);
 	int count = 0;
+
+	struct args adv_args;
+	
 	for(int i = 0; i < len - 1; i++) {
-		// add pthread instructions here
-		}
+		// add pthreads instructions here
+		adv_args.cnt = count;
+		adv_args.state = st;
+		adv_args.cur = data[i];
+		adv_args.next = data[i+1];
+
+		for(t = 0; t < threads; t++){
+			printf("In task: creating thread %ld\n", t);
+			error_code = pthread_create(&th[t], NULL,
+										thread_advance, adv_args);
+			if (error_code){
+				printf("ERROR; return code from pthread_create() is %d\n", error_code);
+				exit(-1);
+			};
+		};
+		pthread_exit(count);
+		// pthread script ends here
 	}
 	freeState(st);
 
