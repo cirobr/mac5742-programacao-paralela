@@ -59,20 +59,23 @@ int main(int argc, char **argv) {
 // Verfique essa variavel para obter o número de threads a criar
 unsigned short int threads;
 
-struct args {
+struct thread_data {
 	int cnt;
 	obj state;
 	char cur;
 	char next;
 };
+struct thread_data thread_data_array[16];
 
-void *thread_advance(struct args advance_args){
+int *thread_advance(void *threadarg){
 	// core to be executed in parallel
-	
-	int cnt   = advance_args.cnt;
-	obj state = advance_args.state;
-	char cur  = advance_args.cur;
-	char next = advance_args.next;
+
+	struct thread_data *my_data;
+   	my_data   = (struct thread_data *) threadarg;
+   	int cnt   = my_data->cnt;
+	obj state = my_data->state;
+	char cur  = my_data->cur;
+	char next = my_data->next;
 	
 	if(advance(state, cur, next)){
 		cnt++;
@@ -92,19 +95,17 @@ int task(char * data, long len, char * search) {
 	obj st = createState(search);
 	int count = 0;
 
-	struct args adv_args;
-	
 	for(int i = 0; i < len - 1; i++) {
 		// add pthreads instructions here
-		adv_args.cnt = count;
-		adv_args.state = st;
-		adv_args.cur = data[i];
-		adv_args.next = data[i+1];
-
 		for(t = 0; t < threads; t++){
-			printf("In task: creating thread %ld\n", t);
+			thread_data_array[t].cnt = count;
+			thread_data_array[t].state = st;
+			thread_data_array[t].cur = data[i];
+			thread_data_array[t].next = data[i+1];
+
+			//printf("In task: creating thread %ld\n", t);
 			error_code = pthread_create(&th[t], NULL,
-										thread_advance, adv_args);
+										thread_advance, &thread_data_array[t]);
 			if (error_code){
 				printf("ERROR; return code from pthread_create() is %d\n", error_code);
 				exit(-1);
