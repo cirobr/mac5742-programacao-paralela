@@ -99,8 +99,11 @@ int task(char * data, long len, char * search) {
     int error_code;
     int t;
 
-	for(int i = 0; i < len - 1; i++) {
+	int i = 0;
+	while(i < len - 1) {
 		// pthread script begins here
+		//printf("comprimento i= %d\n", i);
+
 		for(t = 0; t < threads && i < len - 1; t++){
 			thread_data_array[t].state     = st;
 			thread_data_array[t].cur       = data[i];
@@ -114,7 +117,7 @@ int task(char * data, long len, char * search) {
 				printf("ERROR; return code from pthread_create() is %d\n", error_code);
 				exit(-1);
 			};
-
+			
             i++;
    		};
 		pthread_exit(NULL);
