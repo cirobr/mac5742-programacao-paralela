@@ -1,8 +1,8 @@
 /* Mini EP 5
  */
 
-char * NAME = "Ciro B Rosa";
-char * NUSP = "2320769";
+char * NAME = "YOUR NAME GOES HERE";
+char * NUSP = "0000000";
 
 /* 
  * To test the code, invoke it with the test argument
@@ -59,62 +59,15 @@ int main(int argc, char **argv) {
 // Verfique essa variavel para obter o número de threads a criar
 unsigned short int threads;
 
-struct thread_data {
-	int thread_id;
-	obj state;
-	char cur;
-	char next;
-	int count;
-};
-struct thread_data thread_data_array[16];
-
-int *thread_advance(void *threadarg){
-	// core to be executed in parallel
-
-	struct thread_data *my_data;
-   	my_data   = (struct thread_data *) threadarg;
-   	int count = my_data->count;
-	obj state = my_data->state;
-	char cur  = my_data->cur;
-	char next = my_data->next;
-	
-	if(advance(state, cur, next)){
-		count++;
-	}
-	// core ends here
-	
-	pthread_exit(count);
-}
-
 // Sequential base implementation, change it to use pthreads
 // Implementação sequencial base, altere ela para ter usar pthreads
 int task(char * data, long len, char * search) {
 	obj st = createState(search);
 	int count = 0;
-
-    pthread_t thrd[threads];
-    int error_code;
-    int t;
-
 	for(int i = 0; i < len - 1; i++) {
-		// add pthreads instructions here
-		for(t = 0; t < threads; t++){
-			thread_data_array[t].thread_id = t;
-			thread_data_array[t].state     = st;
-			thread_data_array[t].cur       = data[i];
-			thread_data_array[t].next      = data[i+1];
-			thread_data_array[t].count     = count;
-
-			//printf("In task: creating thread %ld\n", t);
-			error_code = pthread_create(&thrd[t], NULL,
-										thread_advance, &thread_data_array[t]);
-			if (error_code){
-				printf("ERROR; return code from pthread_create() is %d\n", error_code);
-				exit(-1);
-			};
-		};
-		pthread_exit(count);
-		// pthread script ends here
+		if(advance(st, data[i], data[i+1])) {
+			count++;
+		}
 	}
 	freeState(st);
 

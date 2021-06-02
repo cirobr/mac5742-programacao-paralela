@@ -60,58 +60,63 @@ int main(int argc, char **argv) {
 unsigned short int threads;
 
 struct thread_data {
-	int cnt;
+	//int thread_id;
 	obj state;
 	char cur;
 	char next;
+	//int count;
 };
 struct thread_data thread_data_array[16];
 
-int *thread_advance(void *threadarg){
-	// core to be executed in parallel
+void *thread_advance(void *threadarg){
 
 	struct thread_data *my_data;
-   	my_data   = (struct thread_data *) threadarg;
-   	int cnt   = my_data->cnt;
-	obj state = my_data->state;
-	char cur  = my_data->cur;
-	char next = my_data->next;
-	
-	if(advance(state, cur, next)){
-		cnt++;
+   	my_data      = (struct thread_data *) threadarg;
+
+	obj st       = my_data->state;
+	char data_i  = my_data->cur;
+	char data_i1 = my_data->next;
+   	//int cnt      = my_data->count;
+	int count;
+
+	// core function starts here
+	if(advance(st, data_i, data_i1)){
+		count++;
 	}
-	// core ends here
+	// core function ends here
 	
-	pthread_exit(cnt);
+	pthread_exit(NULL);
 }
 
 // Sequential base implementation, change it to use pthreads
 // Implementação sequencial base, altere ela para ter usar pthreads
 int task(char * data, long len, char * search) {
-    pthread_t th[threads];
-    int error_code;
-    long t;
-
 	obj st = createState(search);
 	int count = 0;
 
-	for(int i = 0; i < len - 1; i++) {
-		// add pthreads instructions here
+    pthread_t thrd[threads];
+    int error_code;
+    int t;
+
+    for(int i = 0; i < len - 1; i++) {
+		// pthread script begins here
 		for(t = 0; t < threads; t++){
-			thread_data_array[t].cnt = count;
-			thread_data_array[t].state = st;
-			thread_data_array[t].cur = data[i];
-			thread_data_array[t].next = data[i+1];
+			//thread_data_array[t].thread_id = t;
+			thread_data_array[t].state     = st;
+			thread_data_array[t].cur       = data[i];
+			thread_data_array[t].next      = data[i+1];
+			//thread_data_array[t].count     = count;
 
 			//printf("In task: creating thread %ld\n", t);
-			error_code = pthread_create(&th[t], NULL,
-										thread_advance, &thread_data_array[t]);
-			if (error_code){
+			error_code = pthread_create(&thrd[t], NULL,
+										thread_advance, (void *) &thread_data_array[t]);
+            if (error_code){
 				printf("ERROR; return code from pthread_create() is %d\n", error_code);
 				exit(-1);
 			};
-		};
-		pthread_exit(count);
+
+   		};
+		pthread_exit(NULL);
 		// pthread script ends here
 	}
 	freeState(st);
