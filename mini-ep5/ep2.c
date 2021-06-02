@@ -60,13 +60,12 @@ int main(int argc, char **argv) {
 unsigned short int threads;
 
 struct thread_data {
-	//int thread_id;
 	obj state;
 	char cur;
 	char next;
 	//int count;
 };
-struct thread_data thread_data_array[16];
+struct thread_data thread_data_array[16];	// t < 16 garantido pelo código
 
 void *thread_advance(void *threadarg){
 
@@ -100,19 +99,15 @@ int task(char * data, long len, char * search) {
     int error_code;
     int t;
 
-    int i = 0;
-    printf("len=%d\n", len);
-    while (i < len - 1) {
-    //for(int i = 0; i < len - 1; i++) {
+	for(int i = 0; i < len - 1; i++) {
 		// pthread script begins here
-		for(t = 0; t < threads; t++){
+		for(t = 0; t < threads && i < len - 1; t++){
 			thread_data_array[t].state     = st;
 			thread_data_array[t].cur       = data[i];
 			thread_data_array[t].next      = data[i+1];
 			//thread_data_array[t].count     = count;
 
 			//printf("In task: creating thread %ld\n", t);
-            printf("In task: i=%d t=%d\n", i, t);
 			error_code = pthread_create(&thrd[t], NULL,
 										thread_advance, (void *) &thread_data_array[t]);
             if (error_code){
@@ -121,7 +116,6 @@ int task(char * data, long len, char * search) {
 			};
 
             i++;
-
    		};
 		pthread_exit(NULL);
 		// pthread script ends here
