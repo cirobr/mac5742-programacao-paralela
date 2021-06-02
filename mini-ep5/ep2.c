@@ -95,11 +95,15 @@ int task(char * data, long len, char * search) {
 	obj st = createState(search);
 	int count = 0;
 
+    // pthread variable declarations
     pthread_t thrd[threads];
     int error_code;
     int t;
 
-    for(int i = 0; i < len - 1; i++) {
+    int i = 0;
+    printf("len=%d\n", len);
+    while (i < len - 1) {
+    //for(int i = 0; i < len - 1; i++) {
 		// pthread script begins here
 		for(t = 0; t < threads; t++){
 			thread_data_array[t].state     = st;
@@ -108,12 +112,15 @@ int task(char * data, long len, char * search) {
 			//thread_data_array[t].count     = count;
 
 			//printf("In task: creating thread %ld\n", t);
+            printf("In task: i=%d t=%d\n", i, t);
 			error_code = pthread_create(&thrd[t], NULL,
 										thread_advance, (void *) &thread_data_array[t]);
             if (error_code){
 				printf("ERROR; return code from pthread_create() is %d\n", error_code);
 				exit(-1);
 			};
+
+            i++;
 
    		};
 		pthread_exit(NULL);
