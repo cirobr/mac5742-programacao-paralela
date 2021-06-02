@@ -12,3 +12,6 @@
 CMakeLists.txt.user
 CMakeLists.txt.*
 *.o
+
+#Others
+/pcp_EP_1
