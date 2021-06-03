@@ -7,12 +7,12 @@
             "args": [
                 "-g",
                 "${file}",
-                "-pthread",
                 "-o",
-                "${fileDirname}/${fileBasenameNoExtension}.o"
+                "${fileDirname}/${fileBasenameNoExtension}"
+                //"${fileDirname}/a.out"
             ],
             "options": {
-                "cwd": "${workspaceFolder}"
+                "cwd": "${fileDirname}"
             },
             "problemMatcher": [
                 "$gcc"
