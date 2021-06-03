@@ -7,11 +7,14 @@
 # Python
 /.ipynb_checkpoints/*
 
-#C
+# qt-creator
 /build*
 CMakeLists.txt.user
-CMakeLists.txt.*
+
+# C
 *.o
+*.out
 
 #Others
 /pcp_EP_1
+
