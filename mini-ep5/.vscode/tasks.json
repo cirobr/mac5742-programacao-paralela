@@ -7,9 +7,9 @@
             "args": [
                 "-g",
                 "${file}",
+                "-pthread",
                 "-o",
                 "${fileDirname}/${fileBasenameNoExtension}"
-                //"${fileDirname}/a.out"
             ],
             "options": {
                 "cwd": "${fileDirname}"
