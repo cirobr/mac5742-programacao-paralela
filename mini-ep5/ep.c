@@ -60,66 +60,67 @@ int main(int argc, char **argv) {
 unsigned short int threads;
 
 struct thread_data {
-	int thread_id;
 	obj state;
-	char cur;
-	char next;
+	char *text;
+	int start;
+	int end;
 	int count;
 };
-struct thread_data thread_data_array[16];
 
-int *thread_advance(void *threadarg){
-	// core to be executed in parallel
-
-	struct thread_data *my_data;
-   	my_data   = (struct thread_data *) threadarg;
-   	int count = my_data->count;
-	obj state = my_data->state;
-	char cur  = my_data->cur;
-	char next = my_data->next;
-	
-	if(advance(state, cur, next)){
-		count++;
-	}
-	// core ends here
-	
-	pthread_exit(count);
-}
+void *thread_task(void *);
 
 // Sequential base implementation, change it to use pthreads
 // Implementação sequencial base, altere ela para ter usar pthreads
 int task(char * data, long len, char * search) {
 	obj st = createState(search);
-	int count = 0;
+	
+	// alocação da estruturas relacionadas as threads
+	pthread_t *thrds = malloc(sizeof(pthread_t)*threads);
+	struct thread_data *dt = malloc(sizeof(struct thread_data)*threads);
 
-    pthread_t thrd[threads];
-    int error_code;
-    int t;
-
-	for(int i = 0; i < len - 1; i++) {
-		// add pthreads instructions here
-		for(t = 0; t < threads; t++){
-			thread_data_array[t].thread_id = t;
-			thread_data_array[t].state     = st;
-			thread_data_array[t].cur       = data[i];
-			thread_data_array[t].next      = data[i+1];
-			thread_data_array[t].count     = count;
-
-			//printf("In task: creating thread %ld\n", t);
-			error_code = pthread_create(&thrd[t], NULL,
-										thread_advance, &thread_data_array[t]);
-			if (error_code){
-				printf("ERROR; return code from pthread_create() is %d\n", error_code);
-				exit(-1);
-			};
-		};
-		pthread_exit(count);
-		// pthread script ends here
+	// inicialização do intervalo que cada thread processa
+	int blk = len/threads;
+	int offset = 0;
+	for(int i = 0; i < threads; i++) {
+		dt[i].state  = cloneState(st);
+		dt[i].start  = i * blk;
+		dt[i].end    = (i+1) * blk;
+		dt[i].text   = data;
+		dt[i].count  = 0;
 	}
-	freeState(st);
 
-	return count;
+	// cria as threads
+	int error_code;
+	for(int i = 0; i < threads; i++) {
+		//printf("In task: creating thread %ld\n", t);
+		error_code = pthread_create(thrds+i, NULL, thread_task, dt+i);
+        if (error_code){
+			printf("ERROR; return code from pthread_create() is %d\n", error_code);
+			exit(-1);
+		};
+   	};
+	
+	// joint + saída
+	int count = 0;
+	for(int i = 0; i < threads; i++) {
+		pthread_join(thrds[i], NULL);
+		count += dt[i].count;
+	}
+
+	return(count);
 }	
+
+void *thread_task(void * _data){
+	struct thread_data *dt = _data;
+	obj st = createState(dt->state);
+	dt->count = 0;
+	for(int i = dt->start; i < dt->end; i++) {
+		if(advance(dt->state, dt->text[i], dt->text[i+1])) {
+			dt->count++;
+		}
+	}
+	return(NULL);
+}
 
 //******************************************************************************
 // Your code stops here
