@@ -16,10 +16,10 @@ for i in range(N):
     # creates random sequence
     seq = np.copy(seq_ord)
     np.random.shuffle(seq)
+    args = [str(int) for int in seq]
     print("sequence:", i+1)
     
     # script execution
-    args = [str(int) for int in seq]
     result = run(prog + args, capture_output=True, text=True)
     res = result.stdout[:-2]
     res = np.fromstring(res, dtype=int, sep=' ')
@@ -29,3 +29,5 @@ for i in range(N):
         
 if np.mean(success) >= 0.9:
     print("ok")
+else:
+    print("not ok")
