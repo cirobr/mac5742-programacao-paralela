@@ -1,3 +1,7 @@
+# Aluno: Ciro B Rosa
+# No USP 2320769
+# e-mail: ciro.rosa@alumni.usp.br
+
 import sys
 from subprocess import run
 
