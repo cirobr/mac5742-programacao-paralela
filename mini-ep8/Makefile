@@ -10,8 +10,8 @@ CC_LIBS=-lm         # <math.h>
 all: $(OUTPUT)
 
 $(OUTPUT): $(OUTPUT).c
-	$(CC) -o $(OUTPUT) $(CC_OPT) $(CC_OMP) $(OUTPUT).c  $(CC_LIBS)
+	$(CC) -o $(OUTPUT).o $(CC_OPT) $(CC_OMP) $(OUTPUT).c  $(CC_LIBS)
 
 .PHONY: clean
 clean:
-	rm $(OUTPUT)
+	rm $(OUTPUT) $(OUTPUT).o
