@@ -1,0 +1,14 @@
+
+ Performance counter stats for './bs input output' (10 runs):
+
+            394,11 msec task-clock                #    1,000 CPUs utilized            ( +-  0,15% )
+                 3      context-switches          #    0,007 K/sec                    ( +- 23,08% )
+                 0      cpu-migrations            #    0,000 K/sec                    ( +-100,00% )
+               467      page-faults               #    0,001 M/sec                    ( +-  0,08% )
+     1.374.237.706      cycles                    #    3,487 GHz                      ( +-  0,15% )
+     1.828.758.062      instructions              #    1,33  insn per cycle           ( +-  0,00% )
+       217.965.785      branches                  #  553,053 M/sec                    ( +-  0,00% )
+         1.347.364      branch-misses             #    0,62% of all branches          ( +-  0,62% )
+
+          0,394191 +- 0,000610 seconds time elapsed  ( +-  0,15% )
+
