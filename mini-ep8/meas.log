@@ -1,14 +1,14 @@
 
  Performance counter stats for './bs.o input output' (10 runs):
 
-            397,31 msec task-clock                #    0,998 CPUs utilized            ( +-  0,42% )
-                10      context-switches          #    0,026 K/sec                    ( +- 27,68% )
+            396,38 msec task-clock                #    0,999 CPUs utilized            ( +-  0,30% )
+                 6      context-switches          #    0,014 K/sec                    ( +- 37,19% )
                  0      cpu-migrations            #    0,000 K/sec                  
-               467      page-faults               #    0,001 M/sec                    ( +-  0,06% )
-     1.385.284.504      cycles                    #    3,487 GHz                      ( +-  0,41% )
-     1.828.786.751      instructions              #    1,32  insn per cycle           ( +-  0,00% )
-       217.980.354      branches                  #  548,643 M/sec                    ( +-  0,01% )
-         1.363.175      branch-misses             #    0,63% of all branches          ( +-  0,86% )
+               466      page-faults               #    0,001 M/sec                    ( +-  0,07% )
+     1.381.992.615      cycles                    #    3,487 GHz                      ( +-  0,30% )
+     1.828.687.664      instructions              #    1,32  insn per cycle           ( +-  0,00% )
+       217.951.447      branches                  #  549,859 M/sec                    ( +-  0,00% )
+         1.377.462      branch-misses             #    0,63% of all branches          ( +-  0,97% )
 
-           0,39829 +- 0,00160 seconds time elapsed  ( +-  0,40% )
+           0,39688 +- 0,00126 seconds time elapsed  ( +-  0,32% )
 
