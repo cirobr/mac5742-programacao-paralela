@@ -1,10 +1,10 @@
-OUTPUT=bs
+OUTPUT=bs_omp
 
 CC=gcc
 CC_OPT=-std=c11
 CC_LIBS=-lm         # <math.h>
 
-#CC_OMP=-fopenmp
+CC_OMP=-fopenmp
 
 .PHONY: all
 all: $(OUTPUT)
