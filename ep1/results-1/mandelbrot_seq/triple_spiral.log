@@ -1,0 +1,140 @@
+
+ Performance counter stats for './mandelbrot_seq -0.188 -0.012 0.554 0.754 16' (10 runs):
+
+              0,71 msec task-clock                #    0,706 CPUs utilized            ( +-  2,15% )
+                 0      context-switches          #    0,000 K/sec                  
+                 0      cpu-migrations            #    0,000 K/sec                  
+                60      page-faults               #    0,085 M/sec                    ( +-  0,44% )
+         2.453.971      cycles                    #    3,467 GHz                      ( +-  2,05% )
+         2.240.350      instructions              #    0,91  insn per cycle           ( +-  0,12% )
+           283.996      branches                  #  401,185 M/sec                    ( +-  0,16% )
+             8.382      branch-misses             #    2,95% of all branches          ( +-  1,91% )
+
+          0,001002 +- 0,000140 seconds time elapsed  ( +- 13,97% )
+
+
+ Performance counter stats for './mandelbrot_seq -0.188 -0.012 0.554 0.754 32' (10 runs):
+
+              1,68 msec task-clock                #    0,902 CPUs utilized            ( +-  1,50% )
+                 0      context-switches          #    0,059 K/sec                    ( +-100,00% )
+                 0      cpu-migrations            #    0,000 K/sec                  
+                68      page-faults               #    0,040 M/sec                    ( +-  0,43% )
+         5.867.512      cycles                    #    3,487 GHz                      ( +-  1,49% )
+         6.430.132      instructions              #    1,10  insn per cycle           ( +-  0,04% )
+           627.204      branches                  #  372,688 M/sec                    ( +-  0,08% )
+             9.637      branch-misses             #    1,54% of all branches          ( +-  0,80% )
+
+         0,0018653 +- 0,0000317 seconds time elapsed  ( +-  1,70% )
+
+
+ Performance counter stats for './mandelbrot_seq -0.188 -0.012 0.554 0.754 64' (10 runs):
+
+              5,60 msec task-clock                #    0,971 CPUs utilized            ( +-  0,30% )
+                 0      context-switches          #    0,000 K/sec                  
+                 0      cpu-migrations            #    0,000 K/sec                  
+                98      page-faults               #    0,017 M/sec                    ( +-  0,22% )
+        19.495.318      cycles                    #    3,478 GHz                      ( +-  0,20% )
+        23.272.046      instructions              #    1,19  insn per cycle           ( +-  0,01% )
+         2.011.246      branches                  #  358,852 M/sec                    ( +-  0,03% )
+            13.377      branch-misses             #    0,67% of all branches          ( +-  0,68% )
+
+         0,0057716 +- 0,0000186 seconds time elapsed  ( +-  0,32% )
+
+
+ Performance counter stats for './mandelbrot_seq -0.188 -0.012 0.554 0.754 128' (10 runs):
+
+             21,48 msec task-clock                #    0,985 CPUs utilized            ( +-  0,49% )
+                 0      context-switches          #    0,009 K/sec                    ( +- 66,67% )
+                 0      cpu-migrations            #    0,000 K/sec                  
+               219      page-faults               #    0,010 M/sec                    ( +-  0,12% )
+        74.770.385      cycles                    #    3,481 GHz                      ( +-  0,52% )
+        90.402.257      instructions              #    1,21  insn per cycle           ( +-  0,01% )
+         7.524.915      branches                  #  350,369 M/sec                    ( +-  0,01% )
+            27.178      branch-misses             #    0,36% of all branches          ( +-  0,49% )
+
+          0,021796 +- 0,000145 seconds time elapsed  ( +-  0,67% )
+
+
+ Performance counter stats for './mandelbrot_seq -0.188 -0.012 0.554 0.754 256' (10 runs):
+
+             84,71 msec task-clock                #    0,997 CPUs utilized            ( +-  0,55% )
+                 2      context-switches          #    0,021 K/sec                    ( +- 23,13% )
+                 0      cpu-migrations            #    0,000 K/sec                  
+               700      page-faults               #    0,008 M/sec                    ( +-  0,04% )
+       294.464.240      cycles                    #    3,476 GHz                      ( +-  0,31% )
+       358.802.634      instructions              #    1,22  insn per cycle           ( +-  0,00% )
+        29.568.216      branches                  #  349,066 M/sec                    ( +-  0,01% )
+            80.618      branch-misses             #    0,27% of all branches          ( +-  0,38% )
+
+          0,084993 +- 0,000478 seconds time elapsed  ( +-  0,56% )
+
+
+ Performance counter stats for './mandelbrot_seq -0.188 -0.012 0.554 0.754 512' (10 runs):
+
+            334,26 msec task-clock                #    0,999 CPUs utilized            ( +-  0,06% )
+                 4      context-switches          #    0,012 K/sec                    ( +- 28,87% )
+                 0      cpu-migrations            #    0,000 K/sec                  
+             2.620      page-faults               #    0,008 M/sec                    ( +-  0,01% )
+     1.166.034.364      cycles                    #    3,488 GHz                      ( +-  0,06% )
+     1.432.283.631      instructions              #    1,23  insn per cycle           ( +-  0,00% )
+       117.721.804      branches                  #  352,184 M/sec                    ( +-  0,00% )
+           287.604      branch-misses             #    0,24% of all branches          ( +-  0,21% )
+
+          0,334626 +- 0,000235 seconds time elapsed  ( +-  0,07% )
+
+
+ Performance counter stats for './mandelbrot_seq -0.188 -0.012 0.554 0.754 1024' (10 runs):
+
+          1.332,14 msec task-clock                #    0,995 CPUs utilized            ( +-  0,05% )
+                15      context-switches          #    0,011 K/sec                    ( +- 21,57% )
+                 0      cpu-migrations            #    0,000 K/sec                    ( +- 50,92% )
+            10.299      page-faults               #    0,008 M/sec                    ( +-  0,00% )
+     4.649.475.312      cycles                    #    3,490 GHz                      ( +-  0,04% )
+     5.725.885.933      instructions              #    1,23  insn per cycle           ( +-  0,00% )
+       470.337.573      branches                  #  353,069 M/sec                    ( +-  0,00% )
+         1.103.046      branch-misses             #    0,23% of all branches          ( +-  0,17% )
+
+           1,33904 +- 0,00127 seconds time elapsed  ( +-  0,09% )
+
+
+ Performance counter stats for './mandelbrot_seq -0.188 -0.012 0.554 0.754 2048' (10 runs):
+
+          5.331,96 msec task-clock                #    0,988 CPUs utilized            ( +-  0,05% )
+               100      context-switches          #    0,019 K/sec                    ( +- 36,94% )
+                 1      cpu-migrations            #    0,000 K/sec                    ( +- 30,45% )
+            41.019      page-faults               #    0,008 M/sec                    ( +-  0,00% )
+    18.600.295.425      cycles                    #    3,488 GHz                      ( +-  0,05% )
+    22.903.790.772      instructions              #    1,23  insn per cycle           ( +-  0,01% )
+     1.881.712.167      branches                  #  352,912 M/sec                    ( +-  0,04% )
+         4.339.620      branch-misses             #    0,23% of all branches          ( +-  0,22% )
+
+            5,3994 +- 0,0478 seconds time elapsed  ( +-  0,89% )
+
+
+ Performance counter stats for './mandelbrot_seq -0.188 -0.012 0.554 0.754 4096' (10 runs):
+
+         21.256,03 msec task-clock                #    0,995 CPUs utilized            ( +-  0,01% )
+               156      context-switches          #    0,007 K/sec                    ( +- 16,25% )
+                 2      cpu-migrations            #    0,000 K/sec                    ( +- 31,64% )
+           163.899      page-faults               #    0,008 M/sec                    ( +-  0,00% )
+    74.139.917.638      cycles                    #    3,488 GHz                      ( +-  0,01% )
+    91.601.332.274      instructions              #    1,24  insn per cycle           ( +-  0,00% )
+     7.524.139.926      branches                  #  353,977 M/sec                    ( +-  0,01% )
+        16.874.282      branch-misses             #    0,22% of all branches          ( +-  0,04% )
+
+          21,36015 +- 0,00375 seconds time elapsed  ( +-  0,02% )
+
+
+ Performance counter stats for './mandelbrot_seq -0.188 -0.012 0.554 0.754 8192' (10 runs):
+
+         84.969,16 msec task-clock                #    0,994 CPUs utilized            ( +-  0,01% )
+               572      context-switches          #    0,007 K/sec                    ( +- 13,01% )
+                 6      cpu-migrations            #    0,000 K/sec                    ( +- 10,84% )
+           655.420      page-faults               #    0,008 M/sec                    ( +-  0,00% )
+   296.523.519.380      cycles                    #    3,490 GHz                      ( +-  0,01% )
+   366.408.943.228      instructions              #    1,24  insn per cycle           ( +-  0,00% )
+    30.098.260.052      branches                  #  354,226 M/sec                    ( +-  0,00% )
+        67.078.283      branch-misses             #    0,22% of all branches          ( +-  0,09% )
+
+           85,4736 +- 0,0587 seconds time elapsed  ( +-  0,07% )
+
