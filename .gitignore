@@ -15,6 +15,3 @@ CMakeLists.txt.user
 *.o
 *.out
 
-#Others
-/pcp_EP_1
-
