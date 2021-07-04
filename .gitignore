@@ -5,13 +5,9 @@
 .Ruserdata
 
 # Python
-/.ipynb_checkpoints/*
+*/.ipynb_checkpoints/
 
-# qt-creator
-/build*
+#C
+*/build*
 CMakeLists.txt.user
-
-# C
-*.o
-*.out
-
+CMakeLists.txt.*
