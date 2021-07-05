@@ -1,4 +1,4 @@
-OUTPUT=pointer
+OUTPUT=threadpool
 
 CC=gcc
 CC_OPT=-std=c11
