@@ -1,5 +1,5 @@
-// Name: Your name here / Seu nome aqui
-// NUSP: You NUSP here / Seu NUSP aqui
+// Name: Ciro B Rosa
+// NUSP: 2320769 / ciro.rosa@alumni.usp.br
 
 // In this mini EP we are going to implement the concept of a thread pool
 // The idea is that instead of creating threads for each task,
