@@ -102,8 +102,8 @@ typedef struct _privateThreadPool {
     // thread data
     pthread_t      *threads;
     int             nthread;
-    // task data
-    // ...
+    // task data...
+    int             timesec;
 } privateThreadPool;
 
 // Our thread runs tasks until it does not have tasks anymore.
@@ -140,6 +140,7 @@ ThreadPool newThreadPool(int numberOfThreads) {
     // Prepare task data structures
     // Prepara a estrutura de dados relacionada as tarefas
     // ...
+    struct privateThreadPool *...
 
     // Creates and starts the threads
     p->threads = malloc(sizeof(pthread_t)*numberOfThreads);
