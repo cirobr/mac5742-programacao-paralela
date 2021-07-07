@@ -1,5 +1,6 @@
 // Name: Ciro B Rosa
 // NUSP: 2320769
+// E-mail: ciro.rosa@alumni.usp.br
 
 // In this mini EP we are going to implement the concept of a thread pool
 // The idea is that instead of creating threads for each task,
