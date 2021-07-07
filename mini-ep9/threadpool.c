@@ -1,5 +1,5 @@
 // Name: Ciro B Rosa
-// NUSP: 2320769 / ciro.rosa@alumni.usp.br
+// NUSP: 2320769
 
 // In this mini EP we are going to implement the concept of a thread pool
 // The idea is that instead of creating threads for each task,
@@ -73,7 +73,7 @@ int main(int argc, char ** argv) {
 
     ThreadPool pool = newThreadPool(threads);
 
-    int ntasks = 100;
+    int ntasks = 9; //100
     int seconds[] = {1,4,5,8,7,2,6};
     for(int i = 0; i < ntasks; i++) {
         // adds taks with different sleep durations
@@ -102,8 +102,11 @@ typedef struct _privateThreadPool {
     // thread data
     pthread_t      *threads;
     int             nthread;
-    // task data...
-    int             timesec;
+    // task data
+    // implementando estrutura de pilha
+    int             top;            // topo da pilha
+    int             capacity;       // capacidade da pilha
+    int             *pElem;         // elemento da pilha
 } privateThreadPool;
 
 // Our thread runs tasks until it does not have tasks anymore.
@@ -140,14 +143,19 @@ ThreadPool newThreadPool(int numberOfThreads) {
     // Prepare task data structures
     // Prepara a estrutura de dados relacionada as tarefas
     // ...
-    struct privateThreadPool *...
+    // Criar pilha
+    int c = 200;                //ciro - trocar pelo tamanho máximo da pilha?
+    p->top = -1;
+    p->capacity = c;
+    p->pElem = (int*) malloc(c * sizeof(int));
 
     // Creates and starts the threads
     p->threads = malloc(sizeof(pthread_t)*numberOfThreads);
     p->nthread = numberOfThreads;
     for(int i = 0; i < numberOfThreads; i++) {
-        pthread_create(p->threads+i, NULL, thread, (void*)((long)p+((long)i<<48)));
+        pthread_create(p->threads+i, NULL, thread, (void*)((long)p + ((long)i<<48)));
     }
+    printf("ciro - threadpool created \n");
 
     return p;
 }
@@ -177,7 +185,10 @@ void addTask(ThreadPool pool, Task t) {
     // Adiciona uma tarefa na fila de tarefas do grupo de threads
     // Se a fila estiver cheia, ele deve bloquear.
     // ...
+    p->top++;
+    p->pElem[p->top] = t.seconds;
 
+    return;
 }
 
 Task getTask(ThreadPool pool) {
@@ -188,6 +199,15 @@ Task getTask(ThreadPool pool) {
     // obtem a primeira tarefa da fila.
     // se a fila estivar vazia, essa função bloqueia.
     // ...
+    if(p->top > -1)
+    {
+        t.seconds = p->pElem[p->top];
+        p->top--;
+    }
+    else
+    {
+        t.seconds = 0;
+    }
 
     // return the task
     return t;
