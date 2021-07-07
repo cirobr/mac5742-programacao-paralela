@@ -54,6 +54,9 @@ void addTask(ThreadPool pool, Task t);
 // Retorna uma tarefa
 Task getTask(ThreadPool pool);
 
+//ciro
+#define pthread_mutex_t pool;
+
 int main(int argc, char ** argv) {
     int threads;
     if(argc < 2) {
@@ -72,14 +75,14 @@ int main(int argc, char ** argv) {
         exit(EXIT_FAILURE);
     }
 
-    ThreadPool pool = newThreadPool(threads);
+    ThreadPool pool = newThreadPool(threads);                   // ciro - aqui inicializa o pool e já começa a consumir da pilha!!!
 
-    int ntasks = 9; //100
-    int seconds[] = {1,4,5,8,7,2,6};
+    int ntasks = 9;
+    int seconds[] = {1,1,1,1,1,1,1};  //{1,4,5,8,7,2,6};
     for(int i = 0; i < ntasks; i++) {
         // adds taks with different sleep durations
         printf("Adding %dth task to sleep %d\n", i, seconds[i%7]);
-        addTask(pool, (Task) {.seconds = seconds[i%7]});
+        addTask(pool, (Task) {.seconds = seconds[i%7]});        // ciro - porém só aqui a pilha é incrementada !!!
     }
 
     drainThreadPool(pool);
@@ -91,7 +94,6 @@ int main(int argc, char ** argv) {
 // Sections with ... means that you need to code it!
 // Agora é hora de programar! Mas eu irei ajudar um pouco.
 // Seções com ... significam que você precisa programar elas.
-
 
 void runTask(Task T) {
     // our task just calls sleep
@@ -119,6 +121,9 @@ void *thread(void * pool) {
     // Esse é um hack para usar os bit superiores de um ponteiro para guardar
     // dados. Para um ponteiro de 64 bits, geralmente apenas 48 estão em uso.
     // Então podemos colocar um short int nele ;)
+
+    sleep(1);                   //ciro - solução mágica, agora a fila é criada antes de ser consumida
+
     long id = (long)pool >> 48;
     pool = (void*)((long)pool-(id<<48));
     while(1) {
@@ -153,10 +158,10 @@ ThreadPool newThreadPool(int numberOfThreads) {
     // Creates and starts the threads
     p->threads = malloc(sizeof(pthread_t)*numberOfThreads);
     p->nthread = numberOfThreads;
+
     for(int i = 0; i < numberOfThreads; i++) {
         pthread_create(p->threads+i, NULL, thread, (void*)((long)p + ((long)i<<48)));
     }
-    printf("ciro - threadpool created \n");
 
     return p;
 }
@@ -168,6 +173,8 @@ void drainThreadPool(ThreadPool pool) {
     // para que todas a threads retornem.
     for(int i = 0; i < p->nthread; i++) {
         // ...
+        // dúvida sobre o código a colocar aqui. aparentemente não precisa
+        // https://stackoverflow.com/questions/38793807/how-to-properly-free-array-of-pthread-t-in-c
     }
     for(int i = 0; i < p->nthread; i++) {
         pthread_join(p->threads[i], NULL);
@@ -186,8 +193,13 @@ void addTask(ThreadPool pool, Task t) {
     // Adiciona uma tarefa na fila de tarefas do grupo de threads
     // Se a fila estiver cheia, ele deve bloquear.
     // ...
+
+    //pthread_mutex_lock(pool);
+
     p->top++;
     p->pElem[p->top] = t.seconds;
+
+    //pthread_mutex_unlock(pool);
 
     return;
 }
@@ -200,6 +212,9 @@ Task getTask(ThreadPool pool) {
     // obtem a primeira tarefa da fila.
     // se a fila estivar vazia, essa função bloqueia.
     // ...
+
+    //pthread_mutex_trylock(pool);
+
     if(p->top > -1)
     {
         t.seconds = p->pElem[p->top];
@@ -209,6 +224,8 @@ Task getTask(ThreadPool pool) {
     {
         t.seconds = 0;
     }
+
+    //pthread_mutex_unlock(pool);
 
     // return the task
     return t;
