@@ -122,11 +122,10 @@ void *thread(void * pool) {
     // dados. Para um ponteiro de 64 bits, geralmente apenas 48 estão em uso.
     // Então podemos colocar um short int nele ;)
 
-    //sleep(1);                   //ciro - solução mágica, agora a fila é criada antes de ser consumida
+    sleep(1);                   //ciro - solução mágica, agora a fila é criada antes de ser consumida
 
     long id = (long)pool >> 48;
     pool = (void*)((long)pool-(id<<48));
-    //privateThreadPool *p = pool;
     while(1) {
         Task t = getTask(pool);
         if(t.seconds == 0) {
@@ -195,9 +194,11 @@ void addTask(ThreadPool pool, Task t) {
     // Se a fila estiver cheia, ele deve bloquear.
     // ...
 
-    //pthread_mutex_trylock(pool);
-    p->pElem[p->top] = t.seconds;
+    //pthread_mutex_lock(pool);
+
     p->top++;
+    p->pElem[p->top] = t.seconds;
+
     //pthread_mutex_unlock(pool);
 
     return;
@@ -212,19 +213,19 @@ Task getTask(ThreadPool pool) {
     // se a fila estivar vazia, essa função bloqueia.
     // ...
 
+    //pthread_mutex_trylock(pool);
+
     if(p->top > -1)
     {
-        pthread_mutex_trylock(pool);
         t.seconds = p->pElem[p->top];
         p->top--;
-        pthread_mutex_unlock(pool);
     }
-
-    if(p->top == -1)
+    else
     {
-        pthread_mutex_lock(pool);
         t.seconds = 0;
     }
+
+    //pthread_mutex_unlock(pool);
 
     // return the task
     return t;
