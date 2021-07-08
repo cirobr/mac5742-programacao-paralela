@@ -109,7 +109,6 @@ typedef struct _privateThreadPool {
     // implementando estrutura de pilha
     int             top;            // topo da pilha
     int             capacity;       // capacidade da pilha
-    int             stackInit;      // fila inicializada[0;1]
     int             *pElem;         // elemento da pilha
 } privateThreadPool;
 
@@ -152,10 +151,10 @@ ThreadPool newThreadPool(int numberOfThreads) {
     // Prepara a estrutura de dados relacionada as tarefas
     // ...
     // Criar pilha
-    p->top = 0;
-    p->capacity = MAXTASKS;
-    p->stackInit = 0;
-    p->pElem = (int*) malloc(MAXTASKS * sizeof(int));
+    int c = 200;                //ciro - trocar pelo tamanho máximo da pilha?
+    p->top = -1;
+    p->capacity = c;
+    p->pElem = (int*) malloc(c * sizeof(int));
 
     // Creates and starts the threads
     p->threads = malloc(sizeof(pthread_t)*numberOfThreads);
@@ -196,24 +195,10 @@ void addTask(ThreadPool pool, Task t) {
     // Se a fila estiver cheia, ele deve bloquear.
     // ...
 
-    if(p->top == 0)
-    {
-        pthread_mutex_unlock(pool);
-    }
-
-    if(p->top == p->capacity)
-    {
-        pthread_mutex_lock(pool);
-    }
-
-    else
-    {
-        pthread_mutex_lock(pool);
-        p->pElem[p->top] = t.seconds;
-        p->top++;
-        p->stackInit = 1;
-        pthread_mutex_unlock(pool);
-    }
+    //pthread_mutex_trylock(pool);
+    p->pElem[p->top] = t.seconds;
+    p->top++;
+    //pthread_mutex_unlock(pool);
 
     return;
 }
@@ -227,23 +212,18 @@ Task getTask(ThreadPool pool) {
     // se a fila estivar vazia, essa função bloqueia.
     // ...
 
-    if(p->top == p->capacity)
+    if(p->top > -1)
     {
-        pthread_mutex_unlock(pool);
-    }
-
-    if(p->top > 0)
-    {
-        pthread_mutex_lock(pool);
+        pthread_mutex_trylock(pool);
         t.seconds = p->pElem[p->top];
         p->top--;
         pthread_mutex_unlock(pool);
     }
 
-    else
+    if(p->top == -1)
     {
         pthread_mutex_lock(pool);
-        if(p->stackInit == 1) t.seconds = 0;
+        t.seconds = 0;
     }
 
     // return the task
