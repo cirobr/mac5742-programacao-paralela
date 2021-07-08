@@ -54,8 +54,7 @@ void addTask(ThreadPool pool, Task t);
 // Retorna uma tarefa
 Task getTask(ThreadPool pool);
 
-// ciro
-//#define pthread_mutex_t pool;
+#define pthread_mutex_t pool;                               // ciro
 
 int main(int argc, char ** argv) {
     int threads;
@@ -75,14 +74,14 @@ int main(int argc, char ** argv) {
         exit(EXIT_FAILURE);
     }
 
-    ThreadPool pool = newThreadPool(threads);                   // ciro - aqui inicializa o pool e já começa a consumir da pilha!!!
+    ThreadPool pool = newThreadPool(threads);                   // ciro - inicializa o pool e já começa a consumir da pilha!!!
 
     int ntasks = 9;
     int seconds[] = { 1, 1, 1, 1, 1, 1, 1};                     // {1,4,5,8,7,2,6};
     for(int i = 0; i < ntasks; i++) {
         // adds taks with different sleep durations
         printf("Adding %dth task to sleep %d\n", i, seconds[i%7]);
-        addTask(pool, (Task) {.seconds = seconds[i%7]});        // ciro - porém só aqui a pilha é incrementada !!!
+        addTask(pool, (Task) {.seconds = seconds[i%7]});        // ciro - porém só aqui a pilha é alimentada !!!
     }
 
     drainThreadPool(pool);
@@ -107,8 +106,9 @@ typedef struct _privateThreadPool {
     int             nthread;
     // task data
     // implementando estrutura de pilha
-    int             level;            // nível da pilha
+    int             level;          // nível da pilha
     int             *pElem;         // elemento da pilha
+    int             add_elem;       // flag de elemento adicionado à pilha [0; 1]
 } privateThreadPool;
 
 // Our thread runs tasks until it does not have tasks anymore.
@@ -152,6 +152,7 @@ ThreadPool newThreadPool(int numberOfThreads) {
     // Criar pilha
     p->level = -1;
     p->pElem = (int*) malloc(MAXTASKS * sizeof(int));
+    p->add_elem = 0;
 
     // Creates and starts the threads
     p->threads = malloc(sizeof(pthread_t)*numberOfThreads);
@@ -171,8 +172,7 @@ void drainThreadPool(ThreadPool pool) {
     // para que todas a threads retornem.
     for(int i = 0; i < p->nthread; i++) {
         // ...
-        // dúvida sobre o código a colocar aqui. aparentemente não precisa
-        // https://stackoverflow.com/questions/38793807/how-to-properly-free-array-of-pthread-t-in-c
+        pthread_exit(p->threads+1);
     }
     for(int i = 0; i < p->nthread; i++) {
         pthread_join(p->threads[i], NULL);
@@ -183,6 +183,12 @@ void drainThreadPool(ThreadPool pool) {
     free(p);
 }
 
+/*
+int stack_compare(variable, standard) {
+    if (variable == standard) return 1;
+    else return 0;
+}
+*/
 
 void addTask(ThreadPool pool, Task t) {
     privateThreadPool *p = pool;
@@ -192,19 +198,21 @@ void addTask(ThreadPool pool, Task t) {
     // Se a fila estiver cheia, ele deve bloquear.
     // ...
 
-    //if(p->level, MAXTASKS - 1) {
-        //pthread_mutex_trylock(pool);
-        //t.seconds = 0;
-        //return t;
-    //}
+    if(p->level == MAXTASKS-1) {
+        pthread_mutex_lock(&pool);
+        p->level++;
+        p->pElem[p->level] = t.seconds;
+        p->add_elem = 1;
+        pthread_mutex_unlock(&pool);
+    }
 
-    //pthread_mutex_lock(pool);
-    p->pElem[p->level] = t.seconds;
-    p->level++;
-    //pthread_mutex_unlock(pool);
+    else {
+        pthread_mutex_lock(&pool);
+    }
 
     return;
 }
+
 
 Task getTask(ThreadPool pool) {
     privateThreadPool *p = pool;
@@ -215,17 +223,16 @@ Task getTask(ThreadPool pool) {
     // se a fila estivar vazia, essa função bloqueia.
     // ...
 
-    if(p->level == MINTASKS) {
-        //pthread_mutex_lock(pool);
-        printf("tá no mínimo \n");
-        t.seconds = 0;
-        return t;
+    if(p->level != MINTASKS) {
+        pthread_mutex_lock(&pool);
+        t.seconds = p->pElem[p->level];
+        p->level--;
+        pthread_mutex_unlock(&pool);
     }
 
-    //pthread_mutex_lock(pool);
-    t.seconds = p->pElem[p->level];
-    p->level--;
-    //pthread_mutex_unlock(pool);
+    else {
+        pthread_mutex_lock(&pool);
+    }
 
     // return the task
     return t;
