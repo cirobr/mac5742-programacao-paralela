@@ -55,6 +55,7 @@ void addTask(ThreadPool pool, Task t);
 Task getTask(ThreadPool pool);
 
 #define pthread_mutex_t pool;                               // ciro
+pthread_cond_t unlock_add, unlock_get;
 
 int main(int argc, char ** argv) {
     int threads;
@@ -108,7 +109,6 @@ typedef struct _privateThreadPool {
     // implementando estrutura de pilha
     int             level;          // nível da pilha
     int             *pElem;         // elemento da pilha
-    int             add_elem;       // flag de elemento adicionado à pilha [0; 1]
 } privateThreadPool;
 
 // Our thread runs tasks until it does not have tasks anymore.
@@ -121,7 +121,7 @@ void *thread(void * pool) {
     // dados. Para um ponteiro de 64 bits, geralmente apenas 48 estão em uso.
     // Então podemos colocar um short int nele ;)
 
-    sleep(1);                   //ciro - solução mágica, agora a fila é criada antes de ser consumida
+    //sleep(1);                   //ciro - solução mágica, agora a fila é criada antes de ser consumida
 
     long id = (long)pool >> 48;
     pool = (void*)((long)pool-(id<<48));
@@ -149,17 +149,21 @@ ThreadPool newThreadPool(int numberOfThreads) {
     // Prepare task data structures
     // Prepara a estrutura de dados relacionada as tarefas
     // ...
+    int error;
     // Criar pilha
     p->level = -1;
     p->pElem = (int*) malloc(MAXTASKS * sizeof(int));
-    p->add_elem = 0;
 
     // Creates and starts the threads
     p->threads = malloc(sizeof(pthread_t)*numberOfThreads);
     p->nthread = numberOfThreads;
 
     for(int i = 0; i < numberOfThreads; i++) {
-        pthread_create(p->threads+i, NULL, thread, (void*)((long)p + ((long)i<<48)));
+        error = pthread_create(p->threads+i, NULL, thread, (void*)((long)p + ((long)i<<48)));
+        /*
+            if (error != 0)
+                printf("\nThread can't be created : [%s]", strerror(error));
+        */
     }
 
     return p;
@@ -198,16 +202,23 @@ void addTask(ThreadPool pool, Task t) {
     // Se a fila estiver cheia, ele deve bloquear.
     // ...
 
-    if(p->level == MAXTASKS-1) {
-        pthread_mutex_lock(&pool);
+    //printf("entrou em addtask\n");
+    if(p->level != MAXTASKS-1) {
+        //printf("addtask, level: %d, max: %d\n", p->level, MAXTASKS-1);
+        pthread_mutex_trylock(&pool);
         p->level++;
         p->pElem[p->level] = t.seconds;
-        p->add_elem = 1;
+        pthread_cond_signal(&unlock_get);
         pthread_mutex_unlock(&pool);
     }
 
     else {
+        //printf("addtask max, level: %d, max: %d\n", p->level, MAXTASKS-1);
         pthread_mutex_lock(&pool);
+        while(1) {
+            pthread_cond_wait(&unlock_add, &pool);
+        }
+        pthread_mutex_unlock(&pool);
     }
 
     return;
@@ -223,15 +234,25 @@ Task getTask(ThreadPool pool) {
     // se a fila estivar vazia, essa função bloqueia.
     // ...
 
+    //printf("entrou em gettask\n");
     if(p->level != MINTASKS) {
-        pthread_mutex_lock(&pool);
+        //printf("gettask, level: %d, max: %d\n", p->level, MAXTASKS-1);
+        pthread_mutex_trylock(&pool);
         t.seconds = p->pElem[p->level];
         p->level--;
+        pthread_cond_signal(&unlock_add);
         pthread_mutex_unlock(&pool);
     }
 
     else {
+        //printf("gettask min, level: %d, max: %d\n", p->level, MAXTASKS-1);
         pthread_mutex_lock(&pool);
+        while (1) {
+            pthread_cond_wait(&unlock_get, &pool);
+        }
+        pthread_mutex_unlock(&pool);
+
+        //t.seconds = 0;
     }
 
     // return the task
