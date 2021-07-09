@@ -1,4 +1,4 @@
-OUTPUT=threadpool2
+OUTPUT=threadpool3
 
 CC=gcc
 CC_OPT=-std=c11

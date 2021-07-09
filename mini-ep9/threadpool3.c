@@ -56,7 +56,7 @@ Task getTask(ThreadPool pool);
 
 // ciro - declarar mutexes
 #define pthread_mutex_t pool;
-pthread_cond_t doneGetTask, doneAddTask;
+pthread_cond_t doneGetTask, doneAddTask, firstTaskAded;
 
 // ciro - mudei declaração de tasks para cá
 int ntasks = 9;                                             // 100;
@@ -67,6 +67,7 @@ int stackZero = 1;
 int stackFull = 0;
 int countdownTasks;                                         // = ntasks;
 int tasksDone = 0;
+int firstTask;
 
 
 int main(int argc, char ** argv) {
@@ -90,6 +91,7 @@ int main(int argc, char ** argv) {
     ThreadPool pool = newThreadPool(threads);                   // ciro - inicializa o pool e já começa a consumir da pilha!!!
 
     countdownTasks = ntasks;
+    firstTask = 0;
     for(int i = 0; i < ntasks; i++) {
         // adds taks with different sleep durations
         printf("Adding %dth task to sleep %d\n", i, seconds[i%7]);
@@ -151,7 +153,7 @@ void *thread(void * pool) {
 
 // max number os tasks in the scheduler before addTask blocks.
 // máximo de taredas no escalonador antwes de addTask bloquear.
-#define MAXTASKS 200    // 20
+#define MAXTASKS 20    // 20
 #define MINTASKS -1
 
 ThreadPool newThreadPool(int numberOfThreads) {
@@ -212,13 +214,19 @@ void addTask(ThreadPool pool, Task t) {
     // Se a fila estiver cheia, ele deve bloquear.
     // ...
 
-    // define critério de arbitração de corrida: getTask ganha
+    //printf("entrou addTask \n");
+    pthread_mutex_lock (&p);
+    //printf("bloqueou addTask \n");
+
     int arbitration;
     arbitration = !(stackZero || stackFull || tasksDone);
     if (arbitration) {
-        sleep(1);
+        //printf("entrou na arbitragem addTask \n");
+        pthread_cond_wait(&doneGetTask, &p);     //bloqueia addTask até que getTask execute
+        //printf("desbloqueou arbitragem addTask \n");
     }
 
+    //printf("rotina principal addTask \n");
     // verifica condição protegida para addTask executar
     if (!(stackFull || tasksDone)) {
         // adiciona elemento à pilha
@@ -228,9 +236,18 @@ void addTask(ThreadPool pool, Task t) {
         //atualiza variáveis de controle
         stackZero = compare_variable(p->level, -1);
         stackFull = compare_variable(p->level, MAXTASKS-1);
-        //countdownTasks não é necessário atualizar
+        countdownTasks--;
         //tasksDone não é necessário atualizar
+        /*
+        if (!firstTask) {
+            firstTask = 1;
+            pthread_cond_signal (&doneAddTask);
+        }
+        */
+
     }
+
+    pthread_mutex_unlock (&p);
 
     return;
 }
@@ -245,10 +262,23 @@ Task getTask(ThreadPool pool) {
     // se a fila estivar vazia, essa função bloqueia.
     // ...
 
+    //printf("entrou getTask \n");
+    pthread_mutex_lock (&p);
+    //printf("bloqueou getTask \n");
+
+    //caso a primeira task não tenha sido populada, passar para addTask
+    if (countdownTasks > 1) {
+        pthread_cond_wait(&doneAddTask, &p);     //bloqueia getTask até que primeira task seja adicionada
+    }
+
     // condição para término do programa
-    if (tasksDone) t.seconds = 0;
+    if (tasksDone) {
+        t.seconds = 0;
+        printf("getTask terminou programa \n");
+    }
 
     else {
+        //printf("rotina principal getTask \n");
         // verifica condição protegida para getTask executar
         if (!(stackZero || tasksDone)) {
             // retira elemento da pilha
@@ -263,6 +293,9 @@ Task getTask(ThreadPool pool) {
         }
     }
  
+    pthread_cond_signal (&doneGetTask);
+    pthread_mutex_unlock (&p);
+
     // return the task
     return t;
 }
