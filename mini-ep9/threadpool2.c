@@ -202,18 +202,23 @@ void addTask(ThreadPool pool, Task t) {
     // Se a fila estiver cheia, ele deve bloquear.
     // ...
 
-    //printf("entrou em addtask\n");
-    if(p->level != MAXTASKS-1) {
-        //printf("addtask, level: %d, max: %d\n", p->level, MAXTASKS-1);
-        pthread_mutex_trylock(&pool);
+    printf("entrou em addtask\n");
+    if(p->level < MAXTASKS-1) {
+        printf("addtask, level: %d, max: %d\n", p->level, MAXTASKS-1);
+        pthread_mutex_lock(&pool);
+        printf("1\n")
         p->level++;
         p->pElem[p->level] = t.seconds;
+        printf("2\n")
         pthread_cond_signal(&unlock_get);
+        printf("3\n")
         pthread_mutex_unlock(&pool);
+        printf("4\n")
+
     }
 
     else {
-        //printf("addtask max, level: %d, max: %d\n", p->level, MAXTASKS-1);
+        printf("addtask max, level: %d, max: %d\n", p->level, MAXTASKS-1);
         pthread_mutex_lock(&pool);
         while(1) {
             pthread_cond_wait(&unlock_add, &pool);
@@ -234,10 +239,11 @@ Task getTask(ThreadPool pool) {
     // se a fila estivar vazia, essa função bloqueia.
     // ...
 
-    //printf("entrou em gettask\n");
-    if(p->level != MINTASKS) {
-        //printf("gettask, level: %d, max: %d\n", p->level, MAXTASKS-1);
-        pthread_mutex_trylock(&pool);
+    printf("entrou em gettask\n");
+    if(p->level > MINTASKS) {
+        printf("gettask, level: %d, max: %d\n", p->level, MAXTASKS-1);
+
+        pthread_mutex_lock(&pool);
         t.seconds = p->pElem[p->level];
         p->level--;
         pthread_cond_signal(&unlock_add);
@@ -245,14 +251,14 @@ Task getTask(ThreadPool pool) {
     }
 
     else {
-        //printf("gettask min, level: %d, max: %d\n", p->level, MAXTASKS-1);
+        printf("gettask min, level: %d, max: %d\n", p->level, MAXTASKS-1);
         pthread_mutex_lock(&pool);
         while (1) {
             pthread_cond_wait(&unlock_get, &pool);
         }
         pthread_mutex_unlock(&pool);
-
-        //t.seconds = 0;
+        t.seconds = 0;
+        //return t;
     }
 
     // return the task
