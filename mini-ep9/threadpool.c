@@ -54,8 +54,21 @@ void addTask(ThreadPool pool, Task t);
 // Retorna uma tarefa
 Task getTask(ThreadPool pool);
 
-// ciro
-//#define pthread_mutex_t pool;
+// ciro - declarar mutexes
+pthread_mutex_t mutexupd;
+pthread_cond_t doneGetTask, doneAddTask, firstTaskAded;
+
+// ciro - mudei declaração de tasks para cá
+int ntasks = 9;
+int seconds[] = {1,4,5,8,7,2,6};
+
+// ciro - criar variáveis globais de controle
+int stackZero = 1;
+int stackFull = 0;
+int countdownTasks;                                         // = ntasks;
+int tasksDone = 0;
+int firstTask;
+
 
 int main(int argc, char ** argv) {
     int threads;
@@ -75,14 +88,14 @@ int main(int argc, char ** argv) {
         exit(EXIT_FAILURE);
     }
 
-    ThreadPool pool = newThreadPool(threads);                   // ciro - aqui inicializa o pool e já começa a consumir da pilha!!!
+    ThreadPool pool = newThreadPool(threads);                   // ciro - inicializa o pool e já começa a consumir da pilha!!!
 
-    int ntasks = 9;
-    int seconds[] = { 1, 1, 1, 1, 1, 1, 1};                     // {1,4,5,8,7,2,6};
+    countdownTasks = ntasks;
+    firstTask = 0;
     for(int i = 0; i < ntasks; i++) {
         // adds taks with different sleep durations
         printf("Adding %dth task to sleep %d\n", i, seconds[i%7]);
-        addTask(pool, (Task) {.seconds = seconds[i%7]});        // ciro - porém só aqui a pilha é incrementada !!!
+        addTask(pool, (Task) {.seconds = seconds[i%7]});        // ciro - porém só aqui a pilha é alimentada !!!
     }
 
     drainThreadPool(pool);
@@ -107,7 +120,7 @@ typedef struct _privateThreadPool {
     int             nthread;
     // task data
     // implementando estrutura de pilha
-    int             level;            // nível da pilha
+    int             level;          // nível da pilha
     int             *pElem;         // elemento da pilha
 } privateThreadPool;
 
@@ -121,7 +134,7 @@ void *thread(void * pool) {
     // dados. Para um ponteiro de 64 bits, geralmente apenas 48 estão em uso.
     // Então podemos colocar um short int nele ;)
 
-    sleep(1);                   //ciro - solução mágica, agora a fila é criada antes de ser consumida
+    //sleep(1);                   //ciro - solução mágica, agora a fila é criada antes de ser consumida
 
     long id = (long)pool >> 48;
     pool = (void*)((long)pool-(id<<48));
@@ -140,7 +153,7 @@ void *thread(void * pool) {
 
 // max number os tasks in the scheduler before addTask blocks.
 // máximo de taredas no escalonador antwes de addTask bloquear.
-#define MAXTASKS 200    // 20
+#define MAXTASKS 20    // 20
 #define MINTASKS -1
 
 ThreadPool newThreadPool(int numberOfThreads) {
@@ -159,6 +172,10 @@ ThreadPool newThreadPool(int numberOfThreads) {
 
     for(int i = 0; i < numberOfThreads; i++) {
         pthread_create(p->threads+i, NULL, thread, (void*)((long)p + ((long)i<<48)));
+        /*
+            if (error != 0)
+                printf("\nThread can't be created : [%s]", strerror(error));
+        */
     }
 
     return p;
@@ -171,8 +188,7 @@ void drainThreadPool(ThreadPool pool) {
     // para que todas a threads retornem.
     for(int i = 0; i < p->nthread; i++) {
         // ...
-        // dúvida sobre o código a colocar aqui. aparentemente não precisa
-        // https://stackoverflow.com/questions/38793807/how-to-properly-free-array-of-pthread-t-in-c
+        pthread_exit(p->threads+1);
     }
     for(int i = 0; i < p->nthread; i++) {
         pthread_join(p->threads[i], NULL);
@@ -183,6 +199,10 @@ void drainThreadPool(ThreadPool pool) {
     free(p);
 }
 
+int compare_variable(int variable, int standard) {
+    if (variable == standard) return 1;
+    else return 0;
+}
 
 void addTask(ThreadPool pool, Task t) {
     privateThreadPool *p = pool;
@@ -192,19 +212,41 @@ void addTask(ThreadPool pool, Task t) {
     // Se a fila estiver cheia, ele deve bloquear.
     // ...
 
-    //if(p->level, MAXTASKS - 1) {
-        //pthread_mutex_trylock(pool);
-        //t.seconds = 0;
-        //return t;
-    //}
+    pthread_mutex_lock (&mutexupd);
 
-    //pthread_mutex_lock(pool);
-    p->pElem[p->level] = t.seconds;
-    p->level++;
-    //pthread_mutex_unlock(pool);
+    // trava addTask enquanto a fila estiver cheia
+    while (compare_variable(p->level, MAXTASKS-1)) {
+        pthread_cond_wait(&doneGetTask, &mutexupd);
+    }
+
+    /*
+    int arbitration;
+    arbitration = !(stackZero || stackFull || tasksDone);
+    if (arbitration) {
+        pthread_cond_wait(&doneGetTask, &mutexupd);     //bloqueia addTask até que getTask execute
+    }
+    */
+
+    // verifica condição protegida para addTask executar
+    if (!(stackFull || tasksDone)) {
+        // adiciona elemento à pilha
+        p->level++;
+        p->pElem[p->level] = t.seconds;
+
+        //atualiza variáveis de controle
+        stackZero = compare_variable(p->level, -1);
+        stackFull = compare_variable(p->level, MAXTASKS-1);
+        //countdownTasks não é necessário atualizar
+        //tasksDone não é necessário atualizar
+
+        pthread_cond_signal (&doneAddTask);
+    }
+
+    pthread_mutex_unlock (&mutexupd);
 
     return;
 }
+
 
 Task getTask(ThreadPool pool) {
     privateThreadPool *p = pool;
@@ -215,19 +257,37 @@ Task getTask(ThreadPool pool) {
     // se a fila estivar vazia, essa função bloqueia.
     // ...
 
-    if(p->level == MINTASKS) {
-        //pthread_mutex_lock(pool);
-        printf("tá no mínimo \n");
+    pthread_mutex_lock (&mutexupd);
+
+    // condição para término do programa
+    if (tasksDone) {
         t.seconds = 0;
-        return t;
     }
 
-    //pthread_mutex_lock(pool);
-    t.seconds = p->pElem[p->level];
-    p->level--;
-    //pthread_mutex_unlock(pool);
+    else {
+        // trava getTask até que haja algo na fila
+        while (compare_variable(p->level, -1)) {
+            pthread_cond_wait(&doneAddTask, &mutexupd);
+        }
+
+        // verifica condição protegida para getTask executar
+        if (!(stackZero || tasksDone)) {
+            // retira elemento da pilha
+            t.seconds = p->pElem[p->level];
+            p->level--;
+
+            //atualiza variáveis de controle
+            stackZero = compare_variable(p->level, -1);
+            stackFull = compare_variable(p->level, MAXTASKS-1);
+            countdownTasks--;
+            tasksDone = compare_variable(countdownTasks, 0);
+
+            pthread_cond_signal (&doneGetTask);
+        }
+    }
+ 
+    pthread_mutex_unlock (&mutexupd);
 
     // return the task
     return t;
 }
-
