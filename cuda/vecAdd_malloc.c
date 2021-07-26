@@ -3,6 +3,7 @@
 
 // #define MAXSIZE 500                             // definition NOT needed for the pointer version
 
+// esta função é um KERNEL  
 void vecAdd(float *A, float *B, float *C, int i){
     C[i] = A[i] + B[i];
 }
