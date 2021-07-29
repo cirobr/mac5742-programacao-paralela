@@ -59,14 +59,17 @@ long seqSum(int *refs, int *res) {
 __global__ void cudaSumGPU(int *ints) {
 
 	// you code goes here
-	int seq = blockDim.x * blockIdx.x + threadIdx.x;
+	int numElements = SIZE * SIZE;
+	int thread = blockDim.x * blockIdx.x + threadIdx.x;
 
 	int sum = 0;
-	for (int i = 0; i < blockDim.x; i++){
-		sum += ints[seq * blockDim.x + i];
+	int len = numElements / blockDim.x;
+	for (int i = 0; i < len; i++){
+		int ind = thread * len + i;
+		sum += ints[ind];
 		}
 
-	int k = SIZE * SIZE + threadIdx.x;
+	int k = numElements + threadIdx.x;
 	ints[k] = sum;
 
 	return;
@@ -84,8 +87,8 @@ long cudaSum(int *refs, int *res) {
 
 	// Experiment here
 	int numBlocks = 1;
-	int maxBlockSize = SIZE / numBlocks;
-	cudaSumGPU<<< numBlocks, maxBlockSize >>>(cudaRefs);
+	int blockSize = SIZE / numBlocks;
+	cudaSumGPU<<< numBlocks, blockSize >>>(cudaRefs);
 
 	cudaMemcpy(results, cudaRefs+(SIZE*SIZE), sizeof(int)*SIZE, cudaMemcpyDeviceToHost);
 
