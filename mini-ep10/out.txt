@@ -1,4 +1,0 @@
-res 536563191   soma -1759804082
-Err, sum mismatch
-Average seqTime 3ms
-Avarage cudaTime 5ms
