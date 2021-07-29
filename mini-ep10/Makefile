@@ -1,6 +1,6 @@
-OUTPUT=cudaAdd
+OUTPUT=cudaAdd3
 
-CC_OPT=-std=c11
+#CC_OPT=-std=c11
 
 #CC_LIB=-lm
 #CC_OMP=-fopenmp
