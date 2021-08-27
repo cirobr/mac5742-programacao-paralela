@@ -1,0 +1,13 @@
+# Python
+*/.ipynb_checkpoints/
+
+#C
+/build*
+CMakeLists.txt.user
+CMakeLists.txt.*
+*.o
+*.exe
+
+# others
+*.ppm
+
